@@ -4,7 +4,6 @@ set -e
 cd "$(dirname "$0")"
 
 VERSION="${1:-1.0.0}"
-BUILD_DIR=".build/x86_64-apple-macosx/release"
 APP_NAME="CopyKeep"
 APP_BUNDLE="$APP_NAME.app"
 DMG_NAME="${APP_NAME}-${VERSION}.dmg"
@@ -22,17 +21,22 @@ find_codesign_identity() {
         | head -1
 }
 
-echo "→ Building release binary..."
-bash build.sh --configuration release
+echo "→ Building for x86_64 (Intel)..."
+bash build.sh --configuration release --arch x86_64 2>&1 | tail -2
+
+echo "→ Building for arm64 (Apple Silicon)..."
+bash build.sh --configuration release --arch arm64 2>&1 | tail -2
+
+echo "→ Merging into Universal Binary..."
+mkdir -p "$STAGING_DIR/$APP_BUNDLE/Contents/MacOS"
+lipo -create \
+    ".build/x86_64-apple-macosx/release/$APP_NAME" \
+    ".build/arm64-apple-macosx/release/$APP_NAME" \
+    -output "$STAGING_DIR/$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 
 echo "→ Creating app bundle..."
-rm -rf "$STAGING_DIR" "$APP_BUNDLE"
-mkdir -p "$STAGING_DIR/$APP_BUNDLE/Contents/MacOS"
 mkdir -p "$STAGING_DIR/$APP_BUNDLE/Contents/Frameworks"
 mkdir -p "$STAGING_DIR/$APP_BUNDLE/Contents/Resources"
-
-# Copy binary
-cp "$BUILD_DIR/$APP_NAME" "$STAGING_DIR/$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 
 # Copy Info.plist
 cp Info.plist "$STAGING_DIR/$APP_BUNDLE/Contents/"
@@ -40,8 +44,9 @@ cp Info.plist "$STAGING_DIR/$APP_BUNDLE/Contents/"
 # Copy AppIcon
 cp Sources/CopyKeep/Resources/AppIcon.icns "$STAGING_DIR/$APP_BUNDLE/Contents/Resources/"
 
-# Copy Sparkle framework
-cp -R "$BUILD_DIR/Sparkle.framework" "$STAGING_DIR/$APP_BUNDLE/Contents/Frameworks/Sparkle.framework"
+# Copy Sparkle framework (use either architecture's build)
+cp -R ".build/arm64-apple-macosx/release/Sparkle.framework" \
+    "$STAGING_DIR/$APP_BUNDLE/Contents/Frameworks/Sparkle.framework"
 
 # Set rpath so the binary finds Sparkle
 install_name_tool -add_rpath "@executable_path/../Frameworks" \
@@ -59,10 +64,12 @@ else
 fi
 codesign --force --deep --sign "$SIGN_IDENTITY" --identifier "$BUNDLE_ID" "$STAGING_DIR/$APP_BUNDLE"
 
+echo "→ Verifying Universal Binary..."
+lipo -info "$STAGING_DIR/$APP_BUNDLE/Contents/MacOS/$APP_NAME"
+
 echo "→ Creating DMG..."
 rm -f "$DMG_NAME"
 
-# Create temporary DMG with folder
 hdiutil create -volname "$APP_NAME" -srcfolder "$STAGING_DIR/$APP_BUNDLE" \
     -ov -format UDZO -size 100m "$DMG_NAME"
 
