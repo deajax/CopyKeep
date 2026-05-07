@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>com.copykeep.app</string>
+    <key>CFBundleName</key>
+    <string>CopyKeep</string>
+    <key>CFBundleDisplayName</key>
+    <string>CopyKeep</string>
+    <key>CFBundleVersion</key>
+    <string>1.0.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>CopyKeep 需要控制权限才能将选中的内容粘贴到光标处。</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>SUAllowedRelocation</key>
+    <true/>
+    <key>SUFeedURL</key>
+    <string>https://github.com/[owner]/CopyKeep/releases/latest/download/appcast.xml</string>
+    <key>SUPublicEDKey</key>
+    <string>+h43xt3NjjQu2hNkpEOVBAYGao/sobsKcf18TG1BRLQ=</string>
+</dict>
+</plist>
