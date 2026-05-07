@@ -1,0 +1,38 @@
+name: 构建并发布
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (例如 1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: 构建 Universal DMG
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置版本号
+        run: |
+          /usr/libexec/PlistBuddy -c "Set CFBundleShortVersionString ${{ inputs.version }}" Info.plist
+          /usr/libexec/PlistBuddy -c "Set CFBundleVersion ${{ inputs.version }}" Info.plist
+
+      - name: 构建 DMG
+        run: bash package.sh ${{ inputs.version }}
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          files: CopyKeep-${{ inputs.version }}.dmg
+          overwrite: true
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
