@@ -27,7 +27,7 @@
     <key>SUAllowedRelocation</key>
     <true/>
     <key>SUFeedURL</key>
-    <string>https://github.com/[owner]/CopyKeep/releases/latest/download/appcast.xml</string>
+    <string>https://github.com/deajax/CopyKeep/releases/latest/download/appcast.xml</string>
     <key>SUPublicEDKey</key>
     <string>+h43xt3NjjQu2hNkpEOVBAYGao/sobsKcf18TG1BRLQ=</string>
 </dict>
